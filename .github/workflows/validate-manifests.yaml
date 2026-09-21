@@ -1,0 +1,31 @@
+name: Validate Kubernetes Manifests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate vLLM manifest
+        run: kubeconform -summary vllm/deployment.yaml
+
+      - name: Validate Triton manifest
+        run: kubeconform -summary triton/deployment.yaml
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: vllm/Dockerfile
+          failure-threshold: warning

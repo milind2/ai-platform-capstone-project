@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: vllm-qwen
   labels:
-    managed-by: argocd-demo
+    managed-by: argocd-demo-v3-v2
     app: vllm-qwen
 spec:
   replicas: 1

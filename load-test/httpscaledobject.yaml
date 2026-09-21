@@ -1,0 +1,16 @@
+apiVersion: http.keda.sh/v1alpha1
+kind: HTTPScaledObject
+metadata:
+  name: vllm-qwen-http
+  namespace: default
+spec:
+  hosts:
+  - vllm-qwen.local
+  scaleTargetRef:
+    name: vllm-qwen
+    service: vllm-qwen-svc
+    port: 8000
+  replicas:
+    min: 0
+    max: 1
+  scaledownPeriod: 60

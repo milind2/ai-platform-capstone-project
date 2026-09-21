@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triton-qwen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: triton-qwen
+  template:
+    metadata:
+      labels:
+        app: triton-qwen
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: triton-qwen
+        image: nvcr.io/nvidia/tritonserver:24.08-vllm-python-py3
+        imagePullPolicy: IfNotPresent
+        command: ["tritonserver", "--model-repository=/models"]
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 8001
+          name: grpc
+        - containerPort: 8002
+          name: metrics
+        volumeMounts:
+        - name: model-repo
+          mountPath: /models
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        readinessProbe:
+          httpGet:
+            path: /v2/health/ready
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 6
+      volumes:
+      - name: model-repo
+        hostPath:
+          path: /home/ubuntu/triton-serving/model_repo
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: triton-qwen-svc
+spec:
+  selector:
+    app: triton-qwen
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+  - port: 8001
+    targetPort: 8001
+    name: grpc
+  - port: 8002
+    targetPort: 8002
+    name: metrics

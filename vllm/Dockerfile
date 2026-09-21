@@ -1,10 +1,10 @@
 FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip python3-venv git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir vllm
+RUN pip3 install --no-cache-dir vllm==0.29.0
 
 ENV VLLM_USE_FLASHINFER_SAMPLER=0
 
